@@ -293,3 +293,84 @@ func (q *Queries) ListTags(ctx context.Context) ([]Tag, error) {
 	}
 	return items, nil
 }
+
+const replaceImage = `-- name: ReplaceImage :one
+REPLACE INTO images (
+  id, url, nsfw, nsfwlevel, prompt, width, height, score) VALUES (
+  ?, ?, ?, ?, ?, ?, ?, ?
+)
+RETURNING id, url, nsfw, nsfwlevel, prompt, width, height, score
+`
+
+type ReplaceImageParams struct {
+	ID        int64
+	Url       string
+	Nsfw      int64
+	Nsfwlevel string
+	Prompt    string
+	Width     int64
+	Height    int64
+	Score     int64
+}
+
+func (q *Queries) ReplaceImage(ctx context.Context, arg ReplaceImageParams) (Image, error) {
+	row := q.db.QueryRowContext(ctx, replaceImage,
+		arg.ID,
+		arg.Url,
+		arg.Nsfw,
+		arg.Nsfwlevel,
+		arg.Prompt,
+		arg.Width,
+		arg.Height,
+		arg.Score,
+	)
+	var i Image
+	err := row.Scan(
+		&i.ID,
+		&i.Url,
+		&i.Nsfw,
+		&i.Nsfwlevel,
+		&i.Prompt,
+		&i.Width,
+		&i.Height,
+		&i.Score,
+	)
+	return i, err
+}
+
+const replaceImageTag = `-- name: ReplaceImageTag :one
+REPLACE INTO images_tags (
+	image_id, tag_id
+) VALUES (
+  ?, ?
+)
+RETURNING image_id, tag_id
+`
+
+type ReplaceImageTagParams struct {
+	ImageID int64
+	TagID   int64
+}
+
+func (q *Queries) ReplaceImageTag(ctx context.Context, arg ReplaceImageTagParams) (ImagesTag, error) {
+	row := q.db.QueryRowContext(ctx, replaceImageTag, arg.ImageID, arg.TagID)
+	var i ImagesTag
+	err := row.Scan(&i.ImageID, &i.TagID)
+	return i, err
+}
+
+const replaceTag = `-- name: ReplaceTag :one
+REPLACE INTO tags (
+	content
+) VALUES (
+  ?
+)
+RETURNING id, content
+`
+
+func (q *Queries) ReplaceTag(ctx context.Context, content string) (Tag, error) {
+	row := q.db.QueryRowContext(ctx, replaceTag, content)
+	var i Tag
+	err := row.Scan(&i.ID, &i.Content)
+	return i, err
+}

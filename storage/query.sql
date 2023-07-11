@@ -13,6 +13,13 @@ INSERT INTO images (
 )
 RETURNING *;
 
+-- name: ReplaceImage :one
+REPLACE INTO images (
+  id, url, nsfw, nsfwlevel, prompt, width, height, score) VALUES (
+  ?, ?, ?, ?, ?, ?, ?, ?
+)
+RETURNING *;
+
 -- name: DeleteImage :exec
 DELETE FROM images
 WHERE id = ?;
@@ -33,6 +40,14 @@ INSERT INTO tags (
 )
 RETURNING *;
 
+-- name: ReplaceTag :one
+REPLACE INTO tags (
+	content
+) VALUES (
+  ?
+)
+RETURNING *;
+
 -- name: DeleteTag :exec
 DELETE FROM tags
 WHERE content = ?;
@@ -47,9 +62,19 @@ INSERT INTO images_tags (
 RETURNING *;
 
 
+-- name: ReplaceImageTag :one
+REPLACE INTO images_tags (
+	image_id, tag_id
+) VALUES (
+  ?, ?
+)
+RETURNING *;
+
+
 -- name: GetImageTag :one
 SELECT * FROM images_tags
 WHERE image_id = ? AND tag_id = ? LIMIT 1;
+
 
 -- name: GetImagesWithTag :many
 SELECT images.*
@@ -57,6 +82,7 @@ FROM images
 JOIN images_tags ON images.id = images_tags.image_id
 JOIN tags ON images_tags.tag_id = tags.id
 WHERE tags.content = ?;
+
 
 -- name: GetTagsStartingWith :many
 SELECT *

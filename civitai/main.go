@@ -40,14 +40,7 @@ type ImageStats struct {
 }
 
 type ImageMeta struct {
-	Ensd     string  `json:"ENSD,omitempty"`
-	Size     string  `json:"Size,omitempty"`
-	Seed     int64   `json:"seed,omitempty"`
-	Model    string  `json:"Model,omitempty"`
-	Steps    int     `json:"steps,omitempty"`
-	Prompt   string  `json:"prompt,omitempty"`
-	Sampler  string  `json:"sampler,omitempty"`
-	CfgScale float32 `json:"cfgScale,omitempty"`
+	Prompt string `json:"prompt,omitempty"`
 }
 
 type CivitaiAnswerMetadata struct {
@@ -55,10 +48,18 @@ type CivitaiAnswerMetadata struct {
 	NextPage   string `json:"nextPage,omitempty"`
 }
 
-func GetCivitaiImages(cursor int) (*CivitaiAnswer, error) {
+func GetCivitaiImages(cursor int, timeFrame string, sort string) (*CivitaiAnswer, error) {
+	if sort == "" {
+		sort = "Newest"
+	}
+	if timeFrame == "" {
+		timeFrame = "AllTime"
+	}
+
 	params := url.Values{}
 	params.Add("limit", "200")
 	params.Add("cursor", fmt.Sprintf("%d", cursor))
+	params.Add("period", timeFrame)
 	url := "https://civitai.com/api/v1/images?" + params.Encode()
 
 	log.Info("Requesting url ", url)
