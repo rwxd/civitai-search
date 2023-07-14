@@ -10,14 +10,14 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func StartServer(ip string, port string) {
+func StartServer(ip string, port string, dbPath string) {
 	r := gin.Default()
 	r.LoadHTMLGlob("templates/*")
 
 	ctx := context.Background()
 
 	// open db
-	db, err := sql.Open("sqlite3", "db.sqlite")
+	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		panic(err)
 	}
@@ -55,7 +55,7 @@ func StartServer(ip string, port string) {
 		content := c.Query("content")
 		log.Info("Searching for tag starting with: ", content)
 
-		tags, err := queries.GetTagsStartingth(ctx, content)
+		tags, err := queries.GetTagsStartingWith(ctx, content)
 		if err != nil {
 			log.Fatal(err)
 		}

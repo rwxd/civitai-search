@@ -160,14 +160,14 @@ func (q *Queries) GetTag(ctx context.Context, content string) (Tag, error) {
 	return i, err
 }
 
-const getTagsStartingth = `-- name: GetTagsStartingth :many
+const getTagsStartingWith = `-- name: GetTagsStartingWith :many
 SELECT id, content
 FROM tags
 WHERE content LIKE ? || '%'
 `
 
-func (q *Queries) GetTagsStartingth(ctx context.Context, content string) ([]Tag, error) {
-	rows, err := q.db.QueryContext(ctx, getTagsStartingth, content)
+func (q *Queries) GetTagsStartingWith(ctx context.Context, content string) ([]Tag, error) {
+	rows, err := q.db.QueryContext(ctx, getTagsStartingWith, content)
 	if err != nil {
 		return nil, err
 	}

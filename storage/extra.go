@@ -29,7 +29,8 @@ func GetImagesByTagsCustom(db *sql.DB, tags []string) ([]Image, error) {
 	JOIN tags ON images_tags.tag_id = tags.id
 	WHERE tags.content IN (%s)
 	GROUP BY images.id
-	HAVING COUNT(DISTINCT tags.id) = ?`, placeholders)
+	HAVING COUNT(DISTINCT tags.id) = ?
+	ORDER BY images.score DESC`, placeholders)
 
 	log.Debug("Generated query: ", query)
 
@@ -41,6 +42,46 @@ func GetImagesByTagsCustom(db *sql.DB, tags []string) ([]Image, error) {
 	}
 
 	args[len(tags)] = len(tags)
+
+	rows, err := db.Query(query, args...)
+	if err != nil {
+		return []Image{}, err
+	}
+	defer rows.Close()
+
+	images := []Image{}
+
+	for rows.Next() {
+		var image Image
+		err = rows.Scan(&image.ID, &image.Url, &image.Nsfw, &image.Nsfwlevel, &image.Prompt, &image.Width, &image.Height, &image.Score)
+		if err != nil {
+			return images, err
+		}
+		images = append(images, image)
+	}
+	return images, nil
+}
+
+func GetImagesByPromptTagsCustom(db *sql.DB, tags []string) ([]Image, error) {
+	log.Debug("Querying database for tags: ", tags)
+
+	// Create a slice to store the arguments for the SQL query.
+	args := make([]interface{}, len(tags))
+
+	// Generate a SQL condition for each tag and store the tag in the args slice.
+	conditions := make([]string, len(tags))
+	for i, tag := range tags {
+		conditions[i] = "prompt LIKE ?"
+		args[i] = "%" + tag + "%"
+	}
+
+	// Join the conditions together using OR.
+	conditionsStr := strings.Join(conditions, " AND ")
+
+	// Construct the SQL query.
+	query := "SELECT * FROM images WHERE " + conditionsStr
+
+	log.Debug("Generated query: ", query)
 
 	rows, err := db.Query(query, args...)
 	if err != nil {

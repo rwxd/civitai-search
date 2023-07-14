@@ -1,0 +1,35 @@
+---
+version: "3.7"
+services:
+  "civitai-search":
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - "./db.sqlite:/app/db.sqlite:rw"
+      - "civitai-search-database:/db/"
+    command:
+      - web
+      - --db
+      - "/db/database.sqlite"
+    labels:
+      - "traefik.docker.network=proxy"
+      - "traefik.enable=true"
+      - "traefik.http.middlewares.civitai-search-auth.basicauth.users=hueber:$$apr1$$bX0hgjg7$$U4cq.pJxX5GPdarkmHYW81"
+      - "traefik.http.middlewares.civitai-search-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.civitai-search-secure.entrypoints=https"
+      - "traefik.http.routers.civitai-search-secure.rule=Host(`civitai-search.chaops.de`)"
+      - "traefik.http.routers.civitai-search-secure.service=civitai-search"
+      - "traefik.http.routers.civitai-search-secure.tls=true"
+      - "traefik.http.routers.civitai-search-secure.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.civitai-search.entrypoints=http"
+      - "traefik.http.routers.civitai-search.middlewares=civitai-search-auth"
+      - "traefik.http.routers.civitai-search.rule=Host(`civitai-search.chaops.de`)"
+      - "traefik.http.services.civitai-search.loadbalancer.server.port=8080"
+    networks:
+      - proxy
+networks:
+  proxy:
+    external: true
+volumes:
+  civitai-search-database:

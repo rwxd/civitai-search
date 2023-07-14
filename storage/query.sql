@@ -6,6 +6,11 @@ WHERE id = ? LIMIT 1;
 SELECT * FROM images
 ORDER BY score;
 
+-- name: GetImagesWithPrompt :many
+SELECT *
+FROM images
+WHERE prompt LIKE '%' || $1 || '%'
+
 -- name: CreateImage :one
 INSERT INTO images (
   id, url, nsfw, nsfwlevel, prompt, width, height, score) VALUES (
@@ -28,7 +33,7 @@ WHERE id = ?;
 SELECT * FROM tags
 WHERE content = ? LIMIT 1;
 
--- name: GetTagsStartingth :many
+-- name: GetTagsStartingWith :many
 SELECT *
 FROM tags
 WHERE content LIKE ? || '%';
@@ -78,3 +83,4 @@ RETURNING *;
 -- name: GetImageTag :one
 SELECT * FROM images_tags
 WHERE image_id = ? AND tag_id = ? LIMIT 1;
+

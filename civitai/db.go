@@ -18,6 +18,7 @@ func LoadCivitaiImagesToDB(ctx context.Context, queries *storage.Queries, number
 			log.Warnf("Failed to get Civitai images: %v", err)
 			if strings.Contains(err.Error(), "response") {
 				time.Sleep(10 * time.Second)
+				cursor = cursor + 1
 			}
 			continue
 		}
@@ -33,7 +34,7 @@ func LoadCivitaiImagesToDB(ctx context.Context, queries *storage.Queries, number
 				continue
 			}
 
-			imageTags := sanitizePrompt(image.Meta.Prompt)
+			imageTags := parseTags(image.Meta.Prompt)
 
 			if len(imageTags) > 0 {
 				nsfw := 0
@@ -87,6 +88,16 @@ func LoadCivitaiImagesToDB(ctx context.Context, queries *storage.Queries, number
 		}
 	}
 	return nil
+}
+
+func parseTags(prompt string) []string {
+	re := regexp.MustCompile(`[\w\d_]+`)
+	items := re.FindAllString(prompt, -1)
+	words := []string{}
+	for _, word := range items {
+		words = append(words, strings.ToLower(word))
+	}
+	return words
 }
 
 func sanitizePrompt(prompt string) []string {
