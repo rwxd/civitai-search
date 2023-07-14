@@ -28,6 +28,11 @@ WHERE id = ?;
 SELECT * FROM tags
 WHERE content = ? LIMIT 1;
 
+-- name: GetTagsStartingth :many
+SELECT *
+FROM tags
+WHERE content LIKE ? || '%';
+
 -- name: ListTags :many
 SELECT * FROM tags
 ORDER BY content;
@@ -70,21 +75,6 @@ REPLACE INTO images_tags (
 )
 RETURNING *;
 
-
 -- name: GetImageTag :one
 SELECT * FROM images_tags
 WHERE image_id = ? AND tag_id = ? LIMIT 1;
-
-
--- name: GetImagesWithTag :many
-SELECT images.*
-FROM images
-JOIN images_tags ON images.id = images_tags.image_id
-JOIN tags ON images_tags.tag_id = tags.id
-WHERE tags.content = ?;
-
-
--- name: GetTagsStartingWith :many
-SELECT *
-FROM tags
-WHERE content LIKE ?;

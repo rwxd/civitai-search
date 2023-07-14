@@ -148,46 +148,6 @@ func (q *Queries) GetImageTag(ctx context.Context, arg GetImageTagParams) (Image
 	return i, err
 }
 
-const getImagesWithTag = `-- name: GetImagesWithTag :many
-SELECT images.id, images.url, images.nsfw, images.nsfwlevel, images.prompt, images.width, images.height, images.score
-FROM images
-JOIN images_tags ON images.id = images_tags.image_id
-JOIN tags ON images_tags.tag_id = tags.id
-WHERE tags.content = ?
-`
-
-func (q *Queries) GetImagesWithTag(ctx context.Context, content string) ([]Image, error) {
-	rows, err := q.db.QueryContext(ctx, getImagesWithTag, content)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Image
-	for rows.Next() {
-		var i Image
-		if err := rows.Scan(
-			&i.ID,
-			&i.Url,
-			&i.Nsfw,
-			&i.Nsfwlevel,
-			&i.Prompt,
-			&i.Width,
-			&i.Height,
-			&i.Score,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getTag = `-- name: GetTag :one
 SELECT id, content FROM tags
 WHERE content = ? LIMIT 1
@@ -200,14 +160,14 @@ func (q *Queries) GetTag(ctx context.Context, content string) (Tag, error) {
 	return i, err
 }
 
-const getTagsStartingWith = `-- name: GetTagsStartingWith :many
+const getTagsStartingth = `-- name: GetTagsStartingth :many
 SELECT id, content
 FROM tags
-WHERE content LIKE ?
+WHERE content LIKE ? || '%'
 `
 
-func (q *Queries) GetTagsStartingWith(ctx context.Context, content string) ([]Tag, error) {
-	rows, err := q.db.QueryContext(ctx, getTagsStartingWith, content)
+func (q *Queries) GetTagsStartingth(ctx context.Context, content string) ([]Tag, error) {
+	rows, err := q.db.QueryContext(ctx, getTagsStartingth, content)
 	if err != nil {
 		return nil, err
 	}

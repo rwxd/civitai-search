@@ -54,7 +54,7 @@ var importCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(importCmd)
-	importCmd.Flags().String("time-frame", "Day", "Time frame to download new images")
+	importCmd.Flags().String("time-frame", "Week", "Time frame to download new images")
 	importCmd.Flags().String("sort", "Newest", "Sort images by")
 	importCmd.Flags().String("db", "./db.sqlite", "Path to the sqlite database")
 }

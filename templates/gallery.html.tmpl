@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Gallery Page</title>
+  <style>
+    .gallery {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+    }
+    .image-container {
+      margin: 20px;
+      flex-basis: calc(33.333% - 40px); /* width of each box is approximately 1/3 of the container width minus margins */
+    }
+    .image-container img {
+      max-width: 100%; /* Image width can't be more than the box width */
+      height: auto; /* Maintain aspect ratio */
+    }
+	h1, p {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Civitai Search</h1>
+  <p>Terms: {{range .Tags}}{{.}} {{end}}</p>
+  <div class="gallery">
+    {{range .Images}}
+      <div class="image-container">
+        <a href="https://civitai.com/images/{{.ID}}" target="_blank">
+          <img src="{{.Url}}" alt="Prompt: {{.Prompt}}" />
+        </a>
+      </div>
+    {{end}}
+  </div>
+</body>
+</html>
+

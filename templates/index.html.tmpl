@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Search Page</title>
+  <style>
+    .center {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 50vh;
+      flex-direction: column;
+    }
+    .search-box {
+      display: flex;
+      justify-content: center;
+      width: 300px;
+    }
+    #selected-tags {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 10px 0;
+      width: 300px;
+      justify-content: center;
+    }
+    #selected-tags button {
+      margin: 2px;
+    }
+	h1, p {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="center">
+	<h1>Civitai Search</h1>
+	<p>Search for one or multiple terms</p>
+    <div class="search-box">
+      <input id="search" type="text" name="q" placeholder="Start typing tag..." onkeydown="if (event.key === 'Enter') { event.preventDefault(); addTag(); }" />
+      <button id="search-button">Search</button>
+    </div>
+    <div id="selected-tags">
+      <!-- This is where selected tags will be shown -->
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("search-button").onclick = function() {
+	  var tags = getTags();
+	  var url = "/search?";
+	  tags.forEach(function(tag, index) {
+		url += (index !== 0 ? "&" : "") + "tag=" + encodeURIComponent(tag);
+	  });
+	  window.location.href = url;
+	};
+
+    function addTag() {
+	  var tag = document.getElementById("search").value;
+	  if (tag.length > 1) {
+		document.getElementById("selected-tags").innerHTML += '<button onclick="this.remove()">' + tag + '</button>';
+		document.getElementById("search").value = '';
+	  }
+	}
+
+	document.getElementById("search").addEventListener("keydown", function(event) {
+	  if (event.key === 'Enter') {
+		event.preventDefault();
+		if (this.value.trim() === '') {
+		  // document.getElementById("search-button").click();
+		} else {
+		  addTag();
+		}
+	  }
+	});
+
+    function getTags() {
+      var buttons = document.getElementById("selected-tags").getElementsByTagName("button");
+      var tags = [];
+      for (var i = 0; i < buttons.length; i++) {
+        tags.push(buttons[i].textContent);
+      }
+      return tags;
+    }
+  </script>
+</body>
+</html>
+
