@@ -27,7 +27,7 @@
   <div class="gallery">
     {{range .Images}}
       <div class="image-container">
-        <a href="https://civitai.com/images/{{.ID}}" target="_blank">
+        <a href="https://civitai.com/images/{{.ID}}" target="_blank" loading="lazy">
           <img src="{{.Url}}" alt="Prompt: {{.Prompt}}" />
         </a>
       </div>
